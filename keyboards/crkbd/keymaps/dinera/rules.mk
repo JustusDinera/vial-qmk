@@ -1,11 +1,12 @@
 MOUSEKEY_ENABLE     = no      # Mouse keys
-RGBLIGHT_ENABLE     = yes     # Enable WS2812 RGB underlight.
+#RGBLIGHT_ENABLE     = yes     # Enable WS2812 RGB underlight.
+RGB_MATRIX_ENABLE   = yes
+RGB_MATRIX_DRIVER   = WS2812
 VIA_ENABLE          = yes     # Enable VIA
 VIAL_ENABLE         = yes     # Enable VIAL
-OLED_ENABLE         = yes
-OLED_DRIVER         = SSD1306
+OLED_ENABLE         = no
+#OLED_DRIVER         = SSD1306
 EXTRAKEY_ENABLE     = yes
 LTO_ENABLE          = yes
 QMK_SETTINGS        = no
 COMBO_ENABLE        = no
-
