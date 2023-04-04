@@ -18,6 +18,27 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include QMK_KEYBOARD_H
 
+#if defined(ENCODER_MAP_ENABLE)
+const uint16_t PROGMEM encoder_map[][2][2] = {
+    [0] = {
+        ENCODER_CCW_CW(KC_VOLD, KC_VOLU),
+        ENCODER_CCW_CW(KC_MS_WH_UP, KC_MS_WH_DOWN)
+    },
+    [1] = {
+        ENCODER_CCW_CW(RGB_HUD, RGB_HUI),
+        ENCODER_CCW_CW(RGB_SAD, RGB_SAI)
+    },
+    [2] = {
+        ENCODER_CCW_CW(RGB_VAD, RGB_VAI),
+        ENCODER_CCW_CW(RGB_SPD, RGB_SPI)
+    },
+    [3] = {
+        ENCODER_CCW_CW(RGB_RMOD, RGB_MOD),
+        ENCODER_CCW_CW(KC_RIGHT, KC_LEFT)
+    },
+
+};
+#endif
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   [0] = LAYOUT_split_3x6_3(
@@ -42,7 +63,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
       KC_LSFT, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,                      XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------+--------|  |--------+--------+--------+--------+--------+--------+--------|
                                           KC_LGUI, _______,  KC_SPC,     KC_ENT, _______, KC_RALT
-                                      //`--------------------------'  `--------------------------'
+                                      //`------------- -------------'  `--------------------------'
   ),
 
   [2] = LAYOUT_split_3x6_3(
@@ -59,7 +80,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
   [3] = LAYOUT_split_3x6_3(
   //,-----------------------------------------------------.                    ,-----------------------------------------------------.
-        RESET, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,                      XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
+        XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,                      XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
       RGB_TOG, RGB_HUI, RGB_SAI, RGB_VAI, XXXXXXX, XXXXXXX,                      XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
@@ -69,6 +90,58 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
                                       //`--------------------------'  `--------------------------'
   )
 };
+
+void setUnderglow(uint8_t r, uint8_t g, uint8_t b){
+    uint8_t offset = 0;
+    rgb_matrix_enable_noeeprom();
+    rgb_matrix_mode_noeeprom(RGB_MATRIX_SOLID_COLOR);
+    //rgb_matrix_set_color_all(RGB_OFF);
+
+    rgb_matrix_set_color_all(r, g, b);
+
+    for (uint8_t i = 0; i < DRIVER_LED_TOTAL; i++)
+    {
+        rgb_matrix_set_color(i, 0, 0xff,0);
+    }
+
+    for (uint8_t i = 0; i < 2; i++)
+    {
+        for (uint8_t j = 0; j < 6; j++)
+        {
+            rgb_matrix_set_color(i+offset, r, g, b);
+        }
+        offset = DRIVER_LED_TOTAL/2;
+    }
+}
+
+layer_state_t layer_state_set_user(layer_state_t state) {
+    switch (get_highest_layer(state)) {
+    case 0:
+        setUnderglow (0xFF,  0x00, 0x00);
+        break;
+    case 1:
+        setUnderglow (0x00,  0x00, 0xFF);
+        break;
+    case 2:
+        setUnderglow (0x00,  0xFF, 0x00);
+        break;
+    case 3:
+        setUnderglow (0x7A,  0x00, 0xFF);
+    case 4:
+        setUnderglow (0x00,  0xFF, 0xFF);
+    case 5:
+        setUnderglow (0x7A,  0xFF, 0x00);
+    case 6:
+        setUnderglow (0x00,  0xFF, 0xFF);
+    case 7:
+        setUnderglow (0x00,  0xFF, 0xFF);
+        break;
+    default: //  for any other layers, or the default layer
+        setUnderglow (0xFF,  0xFF, 0xFF);
+        break;
+    }
+  return state;
+}
 
 #ifdef OLED_ENABLE
 #include <stdio.h>

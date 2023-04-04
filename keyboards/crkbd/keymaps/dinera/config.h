@@ -18,13 +18,23 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
 
-#define VIAL_KEYBOARD_UID {0x3B, 0x6B, 0xA0, 0x29, 0x80, 0x56, 0xED, 0xD1}
-#define VIAL_UNLOCK_COMBO_ROWS {0, 0}
-#define VIAL_UNLOCK_COMBO_COLS {0, 1}
 
-#define DYNAMIC_KEYMAP_LAYER_COUNT 4
+// Vial
+#define VIAL_KEYBOARD_UID {0x3B, 0x6B, 0xA0, 0x29, 0x80, 0x56, 0xED, 0xD1}
+#define VIAL_UNLOCK_COMBO_ROWS {0, 2}
+#define VIAL_UNLOCK_COMBO_COLS {0, 5}
+#define DYNAMIC_KEYMAP_LAYER_COUNT 6
 #define TAPPING_TERM 180
 #define IGNORE_MOD_TAP_INTERRUPT
+
+// LED Matrix
+#define RGB_NUM 54
+
+// LED Effects
+#define ENABLE_RGB_MATRIX_TYPING_HEATMAP
+
+// Layers
+#define LAYER_STATE_8BIT
 
 //#define USE_MATRIX_I2C
 #ifdef KEYBOARD_crkbd_rev1_legacy
@@ -36,6 +46,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define MASTER_LEFT
 // #define MASTER_RIGHT
 // #define EE_HANDS
+
+
+// Rotary Encoder
+#define DEBOUNCE 5
+#define ENCODERS_PAD_A { B4 }   //Port encoder left
+#define ENCODERS_PAD_B { B2 }
+#define ENCODERS_PAD_A_RIGHT { B4 } //Port encoder right
+#define ENCODERS_PAD_B_RIGHT { B2 }
 // split keyboard support
 #define SPLIT_USB_DETECT
 
@@ -53,4 +71,4 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #    define RGBLIGHT_VAL_STEP  17
 #endif
 
-#define OLED_FONT_H "keyboards/crkbd/lib/glcdfont.c"
+//#define OLED_FONT_H "keyboards/crkbd/lib/glcdfont.c"
