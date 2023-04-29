@@ -18,6 +18,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include QMK_KEYBOARD_H
 
+uint8_t mainKeys[] = {0xff,0x0,0};
+
 #if defined(ENCODER_MAP_ENABLE)
 const uint16_t PROGMEM encoder_map[][2][2] = {
     [0] = {
@@ -49,7 +51,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
       KC_LSFT,    KC_Z,    KC_X,    KC_C,    KC_V,    KC_B,                         KC_N,    KC_M, KC_COMM,  KC_DOT, KC_SLSH,  KC_ESC,
   //|--------+--------+--------+--------+--------+--------+--------|  |--------+--------+--------+--------+--------+--------+--------|
-                                          KC_LGUI, FN_MO13,  KC_SPC,     KC_ENT, FN_MO23, KC_RALT
+                                          KC_RALT, FN_MO13,  KC_SPC,     KC_ENT, FN_MO23, KC_LGUI
                                       //`--------------------------'  `--------------------------'
 
   ),
@@ -60,7 +62,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
       KC_LCTL, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,                      KC_LEFT, KC_DOWN,   KC_UP,KC_RIGHT, XXXXXXX, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
-      KC_LSFT, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,                      XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
+      KC_LSFT, QK_BOOT, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,                      XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------+--------|  |--------+--------+--------+--------+--------+--------+--------|
                                           KC_LGUI, _______,  KC_SPC,     KC_ENT, _______, KC_RALT
                                       //`------------- -------------'  `--------------------------'
@@ -91,53 +93,15 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   )
 };
 
-void setUnderglow(uint8_t r, uint8_t g, uint8_t b){
-    uint8_t offset = 0;
-    rgb_matrix_enable_noeeprom();
-    rgb_matrix_mode_noeeprom(RGB_MATRIX_SOLID_COLOR);
-    //rgb_matrix_set_color_all(RGB_OFF);
 
-    rgb_matrix_set_color_all(r, g, b);
-
-    for (uint8_t i = 0; i < DRIVER_LED_TOTAL; i++)
-    {
-        rgb_matrix_set_color(i, 0, 0xff,0);
-    }
-
-    for (uint8_t i = 0; i < 2; i++)
-    {
-        for (uint8_t j = 0; j < 6; j++)
-        {
-            rgb_matrix_set_color(i+offset, r, g, b);
-        }
-        offset = DRIVER_LED_TOTAL/2;
-    }
-}
 
 layer_state_t layer_state_set_user(layer_state_t state) {
-    switch (get_highest_layer(state)) {
-    case 0:
-        setUnderglow (0xFF,  0x00, 0x00);
-        break;
-    case 1:
-        setUnderglow (0x00,  0x00, 0xFF);
-        break;
-    case 2:
-        setUnderglow (0x00,  0xFF, 0x00);
-        break;
-    case 3:
-        setUnderglow (0x7A,  0x00, 0xFF);
-    case 4:
-        setUnderglow (0x00,  0xFF, 0xFF);
-    case 5:
-        setUnderglow (0x7A,  0xFF, 0x00);
-    case 6:
-        setUnderglow (0x00,  0xFF, 0xFF);
-    case 7:
-        setUnderglow (0x00,  0xFF, 0xFF);
+    switch (default_layer_state) {
+    case 18:
+        rgb_matrix_mode_noeeprom(RGB_MATRIX_CUSTOM_piano);
         break;
     default: //  for any other layers, or the default layer
-        setUnderglow (0xFF,  0xFF, 0xFF);
+        rgb_matrix_mode(rgb_matrix_get_mode());
         break;
     }
   return state;
@@ -145,11 +109,50 @@ layer_state_t layer_state_set_user(layer_state_t state) {
 
 #ifdef OLED_ENABLE
 #include <stdio.h>
+#include "raw_hid.h"
+#include "print.h"
+
+#include "string.h"
+
+// What the screen look like if no connection is established. This shows a "No connection" message
+char current_screen[] = {
+    0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 56, 68,  4,  4,  4,  4,  4, 68, 56,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,128,128,  0, 48,248,240,224,128,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
+    0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 78, 81, 81, 81, 81, 81,206,  0,  0,  0,  0,  0,  0,  0,  0,136,200,200,136,168,168,152,152,136,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,129,195,  6, 12,156, 56,112,195,135,255,254,252,192,  3, 31,255,254,240,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
+    0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 20, 20, 20, 20, 20, 20,243,  0,  0,  0,  0,  0,  0,  0,  0, 28, 34, 34, 34, 34, 34, 28,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  3,  0,  8, 31, 31, 14,192,241,243,103, 15, 31, 48,120,255,255, 15,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
+    0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 25, 25,  1,  1,  1,  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  1,  0, 14, 31, 15,  6,  0,  1,  3,  6,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
+};
+
+/*
+ * Payload structure. Index identifies where on the OLED to write to.
+ * Report IDs aren't used but cause a pain (not writing, occasionally being stripped off etc.)
+ * For this reason, the first byte should always be "1"
+ * |  1  | 2 | 3 --------- 32 |
+ * |REPID|IDX|     DATA       |
+ */
+static const int PAYLOAD_SIZE = 32;
+/*
+void raw_hid_receive_kb(uint8_t *data, uint8_t length) {
+    // TODO: Read report ID to determine the OLED screen to write to
+    //raw_hid_send(data, length);
+    //uint8_t* index = &data[1];
+    mainKeys[0] = data[3];
+    mainKeys[1] = data[3];
+    mainKeys[2] = data[3];
+    //memcpy(&current_screen[(PAYLOAD_SIZE - 2) * (*index)], &data[2], (PAYLOAD_SIZE - 2));
+}
+*/
+
+static void render_oled(void) {
+    oled_write_raw(current_screen, sizeof(current_screen));
+}
+
 
 oled_rotation_t oled_init_user(oled_rotation_t rotation) {
+  /*
   if (!is_keyboard_master()) {
     return OLED_ROTATION_180;  // flips the display 180 degrees if offhand
   }
+  */
   return rotation;
 }
 
@@ -157,31 +160,57 @@ oled_rotation_t oled_init_user(oled_rotation_t rotation) {
 #define L_LOWER 2
 #define L_RAISE 4
 #define L_ADJUST 8
+#define L_MIDI (1 << 18)
 
 void oled_render_layer_state(void) {
+    char tempStr[] = {'\0', '\0', '\0', '\0'};
+
     oled_write_P(PSTR("Layer: "), false);
-    switch (layer_state) {
+
+    switch (default_layer_state)
+    {
         case L_BASE:
-            oled_write_ln_P(PSTR("0"), false);
+        case 1:
+            switch (layer_state) {
+                case L_BASE:
+                    oled_write_ln_P(PSTR("0             "), false);
+                    break;
+                case L_LOWER:
+                    oled_write_ln_P(PSTR("1             "), false);
+                    break;
+                case L_RAISE:
+                    oled_write_ln_P(PSTR("2             "), false);
+                    break;
+                case L_ADJUST:
+                case L_ADJUST|L_LOWER:
+                case L_ADJUST|L_RAISE:
+                case L_ADJUST|L_LOWER|L_RAISE:
+                    oled_write_ln_P(PSTR("Adjust        "), false);
+                    break;
+                }
             break;
-        case L_LOWER:
-            oled_write_ln_P(PSTR("1"), false);
+        case L_MIDI:
+            oled_write_ln_P(PSTR("MIDI          "), false);
             break;
-        case L_RAISE:
-            oled_write_ln_P(PSTR("2"), false);
+        default:
+            itoa(default_layer_state, tempStr, 10);
+            oled_write_P(PSTR("default layer state : "), false);
+            oled_write_ln(PSTR(tempStr), false);
+            for (uint8_t i; i < 4; i++){
+                tempStr[i] = '\0';
+            }
+            oled_write_P(PSTR("layer state : "), false);
+            oled_write_ln(tempStr, false);
+
             break;
-        case L_ADJUST:
-        case L_ADJUST|L_LOWER:
-        case L_ADJUST|L_RAISE:
-        case L_ADJUST|L_LOWER|L_RAISE:
-            oled_write_ln_P(PSTR("Adjust"), false);
-            break;
+
     }
 }
 
 
 char keylog_str[24] = {};
 
+// left display
 const char code_to_name[60] = {
     ' ', ' ', ' ', ' ', 'a', 'b', 'c', 'd', 'e', 'f',
     'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p',
@@ -232,12 +261,14 @@ void oled_render_logo(void) {
     oled_write_P(crkbd_logo, false);
 }
 
+// Basic task to render the OLEDs
 bool oled_task_user(void) {
     if (is_keyboard_master()) {
         oled_render_layer_state();
         oled_render_keylog();
     } else {
-        oled_render_logo();
+        render_oled();
+
     }
     return false;
 }
