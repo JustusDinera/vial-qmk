@@ -280,3 +280,13 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
   return true;
 }
 #endif // OLED_ENABLE
+
+#ifdef CONSOLE_ENABLE
+void keyboard_post_init_user(void) {
+  // Customise these values to desired behaviour
+  debug_enable=true;
+  //debug_matrix=true;
+  ttdebug_keyboard=true;
+  //debug_mouse=true;
+}
+#endif // CONSOLE_ENABLE

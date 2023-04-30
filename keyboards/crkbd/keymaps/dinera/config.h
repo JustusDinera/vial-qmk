@@ -99,8 +99,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 // Rotary Encoder
 #define DEBOUNCE 5
-#define ENCODERS_PAD_A { B4 }   //Port encoder left
-#define ENCODERS_PAD_B { B2 }
+#define ENCODERS_PAD_A { B2 }   //Port encoder left
+#define ENCODERS_PAD_B { B4 }
 #define ENCODERS_PAD_A_RIGHT { B4 } //Port encoder right
 #define ENCODERS_PAD_B_RIGHT { B2 }
 
