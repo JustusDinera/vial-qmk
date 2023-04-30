@@ -13,7 +13,11 @@ RGB_MATRIX_DRIVER   = WS2812    # Enable WS2812 for RGB Matrix
 VIALRGB_ENABLE      = yes
 VIA_ENABLE          = yes     # Enable VIA
 VIAL_ENABLE         = yes     # Enable VIAL
-VIAL_INSECURE 		= yes     # Enables insecure mode !!! remove in production 	!!!
+
+### Debug
+# remove all in production keyboards
+VIAL_INSECURE 		= yes     # Enables insecure mode
+CONSOLE_ENABLE 		= yes	  # Enables debug output to host console
 
 ### MIDI
 MIDI_ENABLE = yes
