@@ -18,7 +18,15 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include QMK_KEYBOARD_H
 
+// Layer defines
+#define L_BASE 0
+#define L_LOWER 2
+#define L_RAISE 4
+#define L_ADJUST 8
+#define L_MIDI (1 << 18)
+
 uint8_t mainKeys[] = {0xff,0x0,0};
+
 
 #if defined(ENCODER_MAP_ENABLE)
 const uint16_t PROGMEM encoder_map[][2][2] = {
@@ -51,7 +59,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
       KC_LSFT,    KC_Z,    KC_X,    KC_C,    KC_V,    KC_B,                         KC_N,    KC_M, KC_COMM,  KC_DOT, KC_SLSH,  KC_ESC,
   //|--------+--------+--------+--------+--------+--------+--------|  |--------+--------+--------+--------+--------+--------+--------|
-                                          KC_RALT, FN_MO13,  KC_SPC,     KC_ENT, FN_MO23, KC_LGUI
+                                          QK_BOOT, FN_MO13,  KC_SPC,     KC_ENT, FN_MO23, KC_LGUI
                                       //`--------------------------'  `--------------------------'
 
   ),
@@ -93,15 +101,26 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   )
 };
 
+static void oled_write_uint8(uint8_t number, bool invert){
+    char tempStr[] = {'\0', '\0', '\0', '\0'};
 
+    itoa(number, tempStr, 10);
+    oled_write(tempStr, invert);
+}
 
 layer_state_t layer_state_set_user(layer_state_t state) {
+    static uint8_t last_matrix_mode = 255;
+    if (last_matrix_mode == 255)    last_matrix_mode = rgb_matrix_get_mode();
+
+    oled_clear();
     switch (default_layer_state) {
-    case 18:
-        rgb_matrix_mode_noeeprom(RGB_MATRIX_CUSTOM_piano);
+    case L_MIDI:
+        last_matrix_mode = rgb_matrix_get_mode();
+        rgb_matrix_mode(RGB_MATRIX_CUSTOM_piano);
         break;
     default: //  for any other layers, or the default layer
-        rgb_matrix_mode(rgb_matrix_get_mode());
+        if (last_matrix_mode != rgb_matrix_get_mode())
+            rgb_matrix_mode(last_matrix_mode);
         break;
     }
   return state;
@@ -141,11 +160,11 @@ void raw_hid_receive_kb(uint8_t *data, uint8_t length) {
     //memcpy(&current_screen[(PAYLOAD_SIZE - 2) * (*index)], &data[2], (PAYLOAD_SIZE - 2));
 }
 */
-
+/*
 static void render_oled(void) {
     oled_write_raw(current_screen, sizeof(current_screen));
 }
-
+*/
 
 oled_rotation_t oled_init_user(oled_rotation_t rotation) {
   /*
@@ -156,14 +175,9 @@ oled_rotation_t oled_init_user(oled_rotation_t rotation) {
   return rotation;
 }
 
-#define L_BASE 0
-#define L_LOWER 2
-#define L_RAISE 4
-#define L_ADJUST 8
-#define L_MIDI (1 << 18)
+
 
 void oled_render_layer_state(void) {
-    char tempStr[] = {'\0', '\0', '\0', '\0'};
 
     oled_write_P(PSTR("Layer: "), false);
 
@@ -190,21 +204,35 @@ void oled_render_layer_state(void) {
                 }
             break;
         case L_MIDI:
-            oled_write_ln_P(PSTR("MIDI          "), false);
+            oled_write_P(PSTR("MIDI  "), false);
+            // write channle
+            oled_write("CH: ", false);
+            oled_write_uint8(midi_config.channel, true);
+
+            // write velocity
+            oled_write("\nVel: ", false);
+            oled_write_uint8(midi_config.velocity, true);
+
+            // write octave
+            oled_write("\nOct: A", false);
+            oled_write_uint8(midi_config.octave, true);
+
+            // write transpose
+            oled_write("\ntransp: ", false);
+            oled_write_uint8(midi_config.transpose, true);
+
             break;
         default:
-            itoa(default_layer_state, tempStr, 10);
+            // debug output on oled if layer does not match a layer state
+
             oled_write_P(PSTR("default layer state : "), false);
-            oled_write_ln(PSTR(tempStr), false);
-            for (uint8_t i; i < 4; i++){
-                tempStr[i] = '\0';
-            }
-            oled_write_P(PSTR("layer state : "), false);
-            oled_write_ln(tempStr, false);
+            oled_write_uint8(default_layer_state, false);
+            oled_write_P(PSTR("\nlayer state : "), false);
+            oled_write_uint8(layer_state, false);
 
             break;
-
     }
+
 }
 
 
@@ -265,10 +293,12 @@ void oled_render_logo(void) {
 bool oled_task_user(void) {
     if (is_keyboard_master()) {
         oled_render_layer_state();
-        oled_render_keylog();
+        if (default_layer_state != L_MIDI){
+            oled_render_keylog();
+        }
     } else {
-        render_oled();
-
+        //render_oled();
+        render_bootmagic_status(true);
     }
     return false;
 }
@@ -286,7 +316,7 @@ void keyboard_post_init_user(void) {
   // Customise these values to desired behaviour
   debug_enable=true;
   //debug_matrix=true;
-  ttdebug_keyboard=true;
+  debug_keyboard=true;
   //debug_mouse=true;
 }
 #endif // CONSOLE_ENABLE
