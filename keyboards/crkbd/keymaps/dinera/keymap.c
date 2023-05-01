@@ -117,8 +117,17 @@ layer_state_t layer_state_set_user(layer_state_t state) {
     case L_MIDI:
         last_matrix_mode = rgb_matrix_get_mode();
         rgb_matrix_mode(RGB_MATRIX_CUSTOM_piano);
+#ifdef CONSOLE_ENABLE
+        print("layer state: state midi\n");
+        uprintf("last matrix mode: %u\n", last_matrix_mode);
+#endif
         break;
     default: //  for any other layers, or the default layer
+#ifdef CONSOLE_ENABLE
+        print("layer state: state default\n");
+        uprintf("last matrix mode:    %u\n", last_matrix_mode);
+        uprintf("current matrix mode: %u\n", rgb_matrix_get_mode());
+#endif
         if (last_matrix_mode != rgb_matrix_get_mode())
             rgb_matrix_mode(last_matrix_mode);
         break;
@@ -149,17 +158,24 @@ char current_screen[] = {
  * |REPID|IDX|     DATA       |
  */
 static const int PAYLOAD_SIZE = 32;
-/*
+
 void raw_hid_receive_kb(uint8_t *data, uint8_t length) {
     // TODO: Read report ID to determine the OLED screen to write to
     //raw_hid_send(data, length);
     //uint8_t* index = &data[1];
-    mainKeys[0] = data[3];
-    mainKeys[1] = data[3];
-    mainKeys[2] = data[3];
+    //mainKeys[0] = data[3];
+    //mainKeys[1] = data[3];
+    //mainKeys[2] = data[3];
     //memcpy(&current_screen[(PAYLOAD_SIZE - 2) * (*index)], &data[2], (PAYLOAD_SIZE - 2));
+#ifdef CONSOLE_ENABLE
+    uprintf("raw hid data: ");
+    for (uint8_t i = 0; i < length; i++){
+        uprintf("%x", data[i]);
+    }
+    uprintf("\n");
+#endif 
 }
-*/
+
 /*
 static void render_oled(void) {
     oled_write_raw(current_screen, sizeof(current_screen));
@@ -174,8 +190,6 @@ oled_rotation_t oled_init_user(oled_rotation_t rotation) {
   */
   return rotation;
 }
-
-
 
 void oled_render_layer_state(void) {
 
@@ -210,11 +224,12 @@ void oled_render_layer_state(void) {
             oled_write_uint8(midi_config.channel, true);
 
             // write velocity
-            oled_write("\nVel: ", false);
+            oled_write("\nVel:    ", false);
             oled_write_uint8(midi_config.velocity, true);
 
             // write octave
-            oled_write("\nOct: A", false);
+            oled_write("\nOct:    ", false);
+            oled_write("A", true);
             oled_write_uint8(midi_config.octave, true);
 
             // write transpose
