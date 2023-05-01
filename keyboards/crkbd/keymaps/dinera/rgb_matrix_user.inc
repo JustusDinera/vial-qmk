@@ -102,27 +102,32 @@ static bool twoColors(effect_params_t* params){
 }
 
 static bool piano(effect_params_t* params){
+    RGB_MATRIX_USE_LIMITS(led_min, led_max);
+    /*
     HSV hsv;
     RGB rgb;
-    RGB_MATRIX_USE_LIMITS(led_min, led_max);
+
+
+    hsv = rgb_matrix_get_hsv();
+    rgb = hsv_to_rgb(hsv);
+    */
     for (uint8_t i = 0; i < 54; i++)
     {
         switch (pianoKeys[i])
         {
         case W_KEY:
-            rgb_matrix_set_color(i, RGB_WHITE);
+            rgb_matrix_set_color(i, 100, 100, 100);
             break;
         case B_KEY:
             rgb_matrix_set_color(i, 0, 0, 0);
             break;
         default:
-            hsv = rgb_matrix_get_hsv();
-            rgb = hsv_to_rgb(hsv);
-            rgb_matrix_set_color(i, rgb.r, rgb.g, rgb.b);
+            //rgb_matrix_set_color(i, rgb.r, rgb.g, rgb.b);
             break;
         }
     }
-    return rgb_matrix_check_finished_leds(led_max);
+    return false;
+    //return rgb_matrix_check_finished_leds(led_max);
 }
 
 #endif //RGB_MATRIX_CUSTOM_EFFECT_IMPLS
