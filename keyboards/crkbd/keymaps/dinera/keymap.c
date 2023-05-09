@@ -27,7 +27,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 uint8_t mainKeys[] = {0xff,0x0,0};
 
-
+enum user_keycode {
+    OBS_ss = USER00,
+    OBS_pa,
+    MUTE,
+    cam,
+};
 #if defined(ENCODER_MAP_ENABLE)
 const uint16_t PROGMEM encoder_map[][2][2] = {
     [0] = {
@@ -45,8 +50,7 @@ const uint16_t PROGMEM encoder_map[][2][2] = {
     [3] = {
         ENCODER_CCW_CW(RGB_RMOD, RGB_MOD),
         ENCODER_CCW_CW(KC_RIGHT, KC_LEFT)
-    },
-
+    }
 };
 #endif
 
@@ -173,7 +177,7 @@ void raw_hid_receive_kb(uint8_t *data, uint8_t length) {
         uprintf("%x", data[i]);
     }
     uprintf("\n");
-#endif 
+#endif
 }
 
 /*
