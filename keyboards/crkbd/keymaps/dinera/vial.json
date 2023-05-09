@@ -2,6 +2,24 @@
   "name": "Crkbd",
   "vendorId": "0x4653",
   "productId": "0x0001",
+  "customKeycodes": [
+	{"name": "OBSswsc",
+	 "title": "OBS switch scene",
+	 "shortName": "OBS_ss"
+	},
+	{"name": "OBSpause",
+	 "title": "switch toggle pause scene",
+	 "shortname": "OBS_pa"
+	},
+	{"name": "mute",
+	 "title": "mute microphone",
+	 "shortName": "MUTE"
+	},
+    {"name": "OBScam",
+	 "title": "toggle cam in OBS",
+	 "shortName": "cam"
+	}
+],
   "lighting": "vialrgb",
   "matrix": { "rows": 8, "cols": 6 },
   "layouts": {
