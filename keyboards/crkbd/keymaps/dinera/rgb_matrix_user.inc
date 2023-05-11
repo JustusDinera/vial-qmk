@@ -1,6 +1,7 @@
 RGB_MATRIX_EFFECT(twoColors)
-
 RGB_MATRIX_EFFECT(piano)
+RGB_MATRIX_EFFECT(gameLayer)
+RGB_MATRIX_EFFECT(obsLayer)
 
 #define STATUS_LED_MIN 19
 #define STATUS_LED_MAX 21
@@ -82,6 +83,19 @@ static bool isUnderLED(uint8_t ledNum){
     return false;
 }
 
+static bool isWasdLED(uint8_t ledNum){
+
+    if (
+        (ledNum == 11) ||
+        (ledNum == 16) ||
+        (ledNum == 17) ||
+        (ledNum == 19)
+    )
+    {
+        return true;
+    }
+    return false;
+}
 
 static bool twoColors(effect_params_t* params){
     RGB_MATRIX_USE_LIMITS(led_min, led_max);
@@ -111,7 +125,8 @@ static bool piano(effect_params_t* params){
     hsv = rgb_matrix_get_hsv();
     rgb = hsv_to_rgb(hsv);
     */
-    for (uint8_t i = 0; i < 54; i++)
+
+    for (uint8_t i = led_min; i < led_max; i++)
     {
         switch (pianoKeys[i])
         {
@@ -122,12 +137,110 @@ static bool piano(effect_params_t* params){
             rgb_matrix_set_color(i, 0, 0, 0);
             break;
         default:
-            //rgb_matrix_set_color(i, rgb.r, rgb.g, rgb.b);
             break;
         }
     }
     return false;
     //return rgb_matrix_check_finished_leds(led_max);
+}
+
+static bool isFuncKey(uint8_t ledNum){
+    for (uint8_t i = 0; i < 2; i++)
+    {
+        if (
+            (ledNum - i*LED_OFFSET == 9) ||
+            (ledNum - i*LED_OFFSET == 10) ||
+            (ledNum - i*LED_OFFSET == 17) ||
+            (ledNum - i*LED_OFFSET == 18) ||
+            (ledNum - i*LED_OFFSET == 23) ||
+            (ledNum - i*LED_OFFSET == 24)
+        )
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+static bool isObsKey(uint8_t ledNum){
+    for (uint8_t i = 0; i < 2; i++)
+    {
+        if (
+            (ledNum - i*LED_OFFSET == 9) ||
+            (ledNum - i*LED_OFFSET == 10) ||
+            (ledNum - i*LED_OFFSET == 17) ||
+            (ledNum - i*LED_OFFSET == 18) ||
+            (ledNum - i*LED_OFFSET == 23) ||
+            (ledNum - i*LED_OFFSET == 24)
+        )
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+static bool gameLayer(effect_params_t * params){
+    RGB_MATRIX_USE_LIMITS(led_min, led_max);
+
+    HSV hsv = rgb_matrix_get_hsv();
+    RGB normKey = hsv_to_rgb(hsv);
+    RGB specialKey;
+
+    hsv.v = hsv.v + rgb_matrix_config.speed;
+    specialKey = hsv_to_rgb(hsv);
+
+
+
+    for (uint8_t i = led_min; i < led_max; i++)
+    {
+        if (isWasdLED(i))
+            rgb_matrix_set_color(i, specialKey.r, specialKey.g, specialKey.b);
+        else
+            rgb_matrix_set_color(i, normKey.r, normKey.g, normKey.b);
+    }
+    return rgb_matrix_check_finished_leds(led_max);
+}
+
+static bool obsLayer(effect_params_t * params){
+    RGB_MATRIX_USE_LIMITS(led_min, led_max);
+
+    HSV hsv = rgb_matrix_get_hsv();
+    RGB normKey = hsv_to_rgb(hsv);
+    RGB specialKey;
+
+    hsv.v = hsv.v + rgb_matrix_config.speed;
+    specialKey = hsv_to_rgb(hsv);
+
+
+    for (uint8_t i = led_min; i < led_max; i++)
+    {
+        if (isObsKey(i) || isFuncKey(i) || isWasdLED(i))
+            rgb_matrix_set_color(i, specialKey.r, specialKey.g, specialKey.b);
+        else
+            rgb_matrix_set_color(i, normKey.r, normKey.g, normKey.b);
+    }
+    return rgb_matrix_check_finished_leds(led_max);
+}
+
+static bool funcLayer(effect_params_t * params){
+    RGB_MATRIX_USE_LIMITS(led_min, led_max);
+
+    HSV hsv = rgb_matrix_get_hsv();
+    RGB normKey = hsv_to_rgb(hsv);
+    RGB specialKey;
+
+    hsv.v = hsv.v + rgb_matrix_config.speed;
+    specialKey = hsv_to_rgb(hsv);
+
+    for (uint8_t i = led_min; i < led_max; i++)
+    {
+        if (isFuncKey(i))
+            rgb_matrix_set_color(i, specialKey.r, specialKey.g, specialKey.b);
+        else
+            rgb_matrix_set_color(i, normKey.r, normKey.g, normKey.b);
+    }
+    return rgb_matrix_check_finished_leds(led_max);
 }
 
 #endif //RGB_MATRIX_CUSTOM_EFFECT_IMPLS
