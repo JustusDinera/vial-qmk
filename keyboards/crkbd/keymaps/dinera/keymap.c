@@ -27,12 +27,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 uint8_t mainKeys[] = {0xff,0x0,0};
 
+// add user keycodesb
 enum user_keycode {
     OBS_ss = USER00,
     OBS_pa,
     MUTE,
     cam,
 };
+
 #if defined(ENCODER_MAP_ENABLE)
 const uint16_t PROGMEM encoder_map[][2][2] = {
     [0] = {
