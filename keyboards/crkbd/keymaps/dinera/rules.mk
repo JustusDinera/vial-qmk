@@ -38,7 +38,9 @@ EXTRAKEY_ENABLE     = yes
 LTO_ENABLE          = yes
 QMK_SETTINGS        = no
 COMBO_ENABLE        = no
+#NKRO_ENABLE = yes
+#STENO_ENABLE = no
 
 ### KB2040
-PIN_COMPATIBLE 		= promicro
-CONVERT_TO			= kb2040 # Convert Code to Adafruit KB2040
+#PIN_COMPATIBLE 		= promicro
+#CONVERT_TO			= kb2040 # Convert Code to Adafruit KB2040

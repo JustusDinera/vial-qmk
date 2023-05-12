@@ -20,12 +20,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 // Layer defines
 #define L_BASE 0
-#define L_LOWER 2
-#define L_RAISE 4
-#define L_ADJUST 8
+#define L_NUMBER 2
+#define L_SYMBOL 4
+#define L_FUNCTION 8
 #define L_MIDI (1 << 18)
+#define L_OBS (1 << 7)
+#define L_SHOOTER (1 << 12)
+//#define L_MIDI (1 << 18)
 
 uint8_t mainKeys[] = {0xff,0x0,0};
+uint8_t standardMode;
 
 // add user keycodesb
 enum user_keycode {
@@ -107,6 +111,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   )
 };
 
+// helper to write a uint8 to OLED
 static void oled_write_uint8(uint8_t number, bool invert){
     char tempStr[] = {'\0', '\0', '\0', '\0'};
 
@@ -115,27 +120,76 @@ static void oled_write_uint8(uint8_t number, bool invert){
 }
 
 layer_state_t layer_state_set_user(layer_state_t state) {
-    static uint8_t last_matrix_mode = 255;
-    if (last_matrix_mode == 255)    last_matrix_mode = rgb_matrix_get_mode();
-
     oled_clear();
-    switch (default_layer_state) {
-    case L_MIDI:
-        last_matrix_mode = rgb_matrix_get_mode();
-        rgb_matrix_mode(RGB_MATRIX_CUSTOM_piano);
+    if (state == 1 || state == L_BASE)
+    {
+        standardMode = rgb_matrix_get_mode();
+    }
+
+    switch (state) {
+    // function layer
+    case L_FUNCTION:
+    case L_FUNCTION|L_NUMBER:
+    case L_FUNCTION|L_SYMBOL:
+    case L_FUNCTION|L_NUMBER|L_SYMBOL:
+        rgb_matrix_mode_noeeprom(RGB_MATRIX_CUSTOM_funcLayer);
 #ifdef CONSOLE_ENABLE
-        print("layer state: state midi\n");
-        uprintf("last matrix mode: %u\n", last_matrix_mode);
+        print("layer state: state function\n");
+        uprintf("last matrix mode: %lu\n", state);
 #endif
         break;
     default: //  for any other layers, or the default layer
 #ifdef CONSOLE_ENABLE
         print("layer state: state default\n");
-        uprintf("last matrix mode:    %u\n", last_matrix_mode);
+        uprintf("last matrix mode:    %lu\n", state);
         uprintf("current matrix mode: %u\n", rgb_matrix_get_mode());
 #endif
-        if (last_matrix_mode != rgb_matrix_get_mode())
-            rgb_matrix_mode(last_matrix_mode);
+        rgb_matrix_mode(standardMode);
+        break;
+    }
+  return state;
+}
+
+layer_state_t default_layer_state_set_user(layer_state_t state) {
+    oled_clear();
+    switch (state) {
+    case L_MIDI:
+        //state = rgb_matrix_get_mode();
+        rgb_matrix_mode_noeeprom(RGB_MATRIX_CUSTOM_piano);
+#ifdef CONSOLE_ENABLE
+        print("default layer state: state midi\n");
+        uprintf("last matrix mode: %lu\n", state);
+#endif
+        break;
+    case L_OBS:
+        rgb_matrix_mode_noeeprom(RGB_MATRIX_CUSTOM_obsLayer);
+#ifdef CONSOLE_ENABLE
+        print("default layer state: state OBS\n");
+        uprintf("last matrix mode: %lu\n", state);
+#endif
+        break;
+    case L_FUNCTION:
+        rgb_matrix_mode_noeeprom(RGB_MATRIX_CUSTOM_funcLayer);
+#ifdef CONSOLE_ENABLE
+        print("default layer state: state function\n");
+        uprintf("last matrix mode: %lu\n", state);
+#endif
+        break;
+    case L_SHOOTER:
+        rgb_matrix_mode_noeeprom(RGB_MATRIX_CUSTOM_gameLayer);
+#ifdef CONSOLE_ENABLE
+        print("default layer state: state game\n");
+        uprintf("last matrix mode: %lu\n", state);
+#endif
+        break;
+    default: //  for any other layers, or the default layer
+#ifdef CONSOLE_ENABLE
+        print("default layer state: state default\n");
+        uprintf("last matrix mode:    %lu\n", state);
+        uprintf("current matrix mode: %u\n", rgb_matrix_get_mode());
+#endif
+        //if (state != rgb_matrix_get_mode())
+            rgb_matrix_mode(standardMode);
         break;
     }
   return state;
@@ -207,19 +261,19 @@ void oled_render_layer_state(void) {
         case 1:
             switch (layer_state) {
                 case L_BASE:
-                    oled_write_ln_P(PSTR("0             "), false);
+                    oled_write_ln_P(PSTR("Home          "), false);
                     break;
-                case L_LOWER:
-                    oled_write_ln_P(PSTR("1             "), false);
+                case L_NUMBER:
+                    oled_write_ln_P(PSTR("Number        "), false);
                     break;
-                case L_RAISE:
-                    oled_write_ln_P(PSTR("2             "), false);
+                case L_SYMBOL:
+                    oled_write_ln_P(PSTR("Symbol        "), false);
                     break;
-                case L_ADJUST:
-                case L_ADJUST|L_LOWER:
-                case L_ADJUST|L_RAISE:
-                case L_ADJUST|L_LOWER|L_RAISE:
-                    oled_write_ln_P(PSTR("Adjust        "), false);
+                case L_FUNCTION:
+                case L_FUNCTION|L_NUMBER:
+                case L_FUNCTION|L_SYMBOL:
+                case L_FUNCTION|L_NUMBER|L_SYMBOL:
+                    oled_write_ln_P(PSTR("Function      "), false);
                     break;
                 }
             break;
@@ -328,16 +382,34 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
   if (record->event.pressed) {
     set_keylog(keycode, record);
   }
+
+  switch (keycode)
+  {
+  case RGB_MOD:
+    rgb_matrix_step();
+    standardMode = rgb_matrix_get_mode();
+    rgb_matrix_step_reverse();
+    break;
+  case RGB_RMOD:
+    rgb_matrix_step_reverse();
+    standardMode = rgb_matrix_get_mode();
+    rgb_matrix_step();
+    break;
+
+  default:
+    break;
+  }
   return true;
 }
 #endif // OLED_ENABLE
 
-#ifdef CONSOLE_ENABLE
 void keyboard_post_init_user(void) {
-  // Customise these values to desired behaviour
-  debug_enable=true;
-  //debug_matrix=true;
-  debug_keyboard=true;
-  //debug_mouse=true;
-}
+#ifdef CONSOLE_ENABLE
+    // Customise these values to desired behaviour
+    debug_enable=true;
+    //debug_matrix=true;
+    debug_keyboard=true;
+    //debug_mouse=true;
 #endif // CONSOLE_ENABLE
+    standardMode = rgb_matrix_get_mode();
+}
