@@ -3,23 +3,24 @@
   "vendorId": "0x4653",
   "productId": "0x0001",
   "customKeycodes": [
-	{"name": "OBSswsc",
+	{"name": "OBS switch scene",
 	 "title": "OBS switch scene",
 	 "shortName": "OBS_ss"
 	},
-	{"name": "OBSpause",
+	{"name": "OBS pause screen",
 	 "title": "switch toggle pause scene",
 	 "shortname": "OBS_pa"
 	},
-	{"name": "mute",
+	{"name": "mute mic",
 	 "title": "mute microphone",
 	 "shortName": "MUTE"
 	},
-    {"name": "OBScam",
+    {"name": "OBS cam",
 	 "title": "toggle cam in OBS",
 	 "shortName": "cam"
 	}
 ],
+
   "lighting": "vialrgb",
   "matrix": { "rows": 8, "cols": 6 },
   "layouts": {

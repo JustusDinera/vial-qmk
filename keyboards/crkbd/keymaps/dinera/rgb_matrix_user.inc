@@ -2,6 +2,7 @@ RGB_MATRIX_EFFECT(twoColors)
 RGB_MATRIX_EFFECT(piano)
 RGB_MATRIX_EFFECT(gameLayer)
 RGB_MATRIX_EFFECT(obsLayer)
+RGB_MATRIX_EFFECT(funcLayer)
 
 #define STATUS_LED_MIN 19
 #define STATUS_LED_MAX 21
@@ -20,7 +21,7 @@ static uint8_t mainKeys[] = {0xff, 0, 0xff};
 static uint8_t ctrlKeys[] = {0xff, 0xff, 0};
 
 static uint8_t pianoKeys[] = {
-    W_KEY, W_KEY, W_KEY, W_KEY, W_KEY, W_KEY, // underglow
+    O_KEY, O_KEY, O_KEY, O_KEY, O_KEY, O_KEY, // underglow
     O_KEY,
     W_KEY, W_KEY, W_KEY, // F
     W_KEY, W_KEY, W_KEY, // E
@@ -29,7 +30,7 @@ static uint8_t pianoKeys[] = {
     W_KEY, W_KEY, W_KEY, // D
     W_KEY, B_KEY, B_KEY, // C#
     W_KEY, W_KEY, W_KEY, // C
-    W_KEY, W_KEY, W_KEY, W_KEY, W_KEY, W_KEY, // underglow
+    O_KEY, O_KEY, O_KEY, O_KEY, O_KEY, O_KEY, // underglow
     O_KEY,
     W_KEY, B_KEY, B_KEY, // F#
     W_KEY, W_KEY, W_KEY, // G
@@ -55,6 +56,15 @@ static bool isThumbLED(uint8_t ledNum){
     return false;
 }
 
+static bool setThumbLED(uint8_t ledNum, uint8_t r, uint8_t g, uint8_t b){
+    bool result = isThumbLED(ledNum);
+    if (result)
+    {
+        rgb_matrix_set_color(ledNum, r, g, b);
+    }
+    return result;
+}
+
 static bool isPinkyLED(uint8_t ledNum){
     for (uint8_t i = 0; i < 2; i++)
     {
@@ -67,6 +77,28 @@ static bool isPinkyLED(uint8_t ledNum){
         }
     }
     return false;
+}
+
+static bool setPinkyLED(uint8_t ledNum, uint8_t r, uint8_t g, uint8_t b){
+    bool result = isPinkyLED(ledNum);
+    if (result)
+    {
+        rgb_matrix_set_color(ledNum, r, g, b);
+    }
+    return result;
+}
+
+static bool isCtrlLED(uint8_t ledNum){
+    return (isPinkyLED(ledNum) || isThumbLED(ledNum));
+}
+
+static bool setCtrlLED(uint8_t ledNum, uint8_t r, uint8_t g, uint8_t b){
+    bool result = isCtrlLED(ledNum);
+    if (result)
+    {
+        rgb_matrix_set_color(ledNum, r, g, b);
+    }
+    return result;
 }
 
 static bool isUnderLED(uint8_t ledNum){
@@ -83,6 +115,15 @@ static bool isUnderLED(uint8_t ledNum){
     return false;
 }
 
+static bool setUnderLED(uint8_t ledNum, uint8_t r, uint8_t g, uint8_t b){
+    bool result = isUnderLED(ledNum);
+    if (result)
+    {
+        rgb_matrix_set_color(ledNum, r, g, b);
+    }
+    return result;
+}
+
 static bool isWasdLED(uint8_t ledNum){
 
     if (
@@ -97,34 +138,94 @@ static bool isWasdLED(uint8_t ledNum){
     return false;
 }
 
+static bool setWasdLED(uint8_t ledNum, uint8_t r, uint8_t g, uint8_t b){
+    bool result = isWasdLED(ledNum);
+    if (result)
+    {
+        rgb_matrix_set_color(ledNum, r, g, b);
+    }
+    return result;
+}
+
+static bool isFuncLED(uint8_t ledNum){
+    for (uint8_t i = 0; i < 2; i++)
+    {
+        if (
+            (ledNum - i*LED_OFFSET == 9) ||
+            (ledNum - i*LED_OFFSET == 10) ||
+            (ledNum - i*LED_OFFSET == 17) ||
+            (ledNum - i*LED_OFFSET == 18) ||
+            (ledNum - i*LED_OFFSET == 23) ||
+            (ledNum - i*LED_OFFSET == 24)
+        )
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+static bool setFuncLED(uint8_t ledNum, uint8_t r, uint8_t g, uint8_t b){
+    bool result = isFuncLED(ledNum);
+    if (result)
+    {
+        rgb_matrix_set_color(ledNum, r, g, b);
+    }
+    return result;
+}
+
+// TODO set OBS keys
+static bool isObsLED(uint8_t ledNum){
+    for (uint8_t i = 0; i < 2; i++)
+    {
+        if (
+            (ledNum - i*LED_OFFSET == 9) ||
+            (ledNum - i*LED_OFFSET == 10) ||
+            (ledNum - i*LED_OFFSET == 17) ||
+            (ledNum - i*LED_OFFSET == 18) ||
+            (ledNum - i*LED_OFFSET == 23) ||
+            (ledNum - i*LED_OFFSET == 24)
+        )
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+static bool setObsLED(uint8_t ledNum, uint8_t r, uint8_t g, uint8_t b){
+    bool result = isObsLED(ledNum);
+    if (result)
+    {
+        rgb_matrix_set_color(ledNum, r, g, b);
+    }
+    return result;
+}
+
+// deprecated
 static bool twoColors(effect_params_t* params){
     RGB_MATRIX_USE_LIMITS(led_min, led_max);
     for (uint8_t i = led_min; i < led_max; i++) {
-        if (isThumbLED(i) || isPinkyLED(i)){
-            rgb_matrix_set_color(i, ctrlKeys[0], ctrlKeys[1], ctrlKeys[2]);
-        }
-        else if (isUnderLED(i))
+        if (!(
+            setCtrlLED(i, ctrlKeys[0], ctrlKeys[1], ctrlKeys[2]) ||
+            setUnderLED(i, underglow[0], underglow[1], underglow[2])
+        ))
         {
-            rgb_matrix_set_color(i, underglow[0], underglow[1], underglow[2]);
-        }
-
-        else{
             rgb_matrix_set_color(i, mainKeys[0], mainKeys[1], mainKeys[2]);
         }
     }
     return rgb_matrix_check_finished_leds(led_max);
 }
 
+// shows a piano keyboard
 static bool piano(effect_params_t* params){
     RGB_MATRIX_USE_LIMITS(led_min, led_max);
-    /*
+
     HSV hsv;
     RGB rgb;
 
-
     hsv = rgb_matrix_get_hsv();
     rgb = hsv_to_rgb(hsv);
-    */
 
     for (uint8_t i = led_min; i < led_max; i++)
     {
@@ -134,50 +235,16 @@ static bool piano(effect_params_t* params){
             rgb_matrix_set_color(i, 100, 100, 100);
             break;
         case B_KEY:
-            rgb_matrix_set_color(i, 0, 0, 0);
+            rgb_matrix_set_color(i, rgb.r, rgb.g, rgb.b);
             break;
         default:
+            setUnderLED(i, rgb.r, rgb.g, rgb.b);
+            setThumbLED(i, rgb.r, rgb.g, rgb.b);
             break;
         }
     }
     return false;
     //return rgb_matrix_check_finished_leds(led_max);
-}
-
-static bool isFuncKey(uint8_t ledNum){
-    for (uint8_t i = 0; i < 2; i++)
-    {
-        if (
-            (ledNum - i*LED_OFFSET == 9) ||
-            (ledNum - i*LED_OFFSET == 10) ||
-            (ledNum - i*LED_OFFSET == 17) ||
-            (ledNum - i*LED_OFFSET == 18) ||
-            (ledNum - i*LED_OFFSET == 23) ||
-            (ledNum - i*LED_OFFSET == 24)
-        )
-        {
-            return true;
-        }
-    }
-    return false;
-}
-
-static bool isObsKey(uint8_t ledNum){
-    for (uint8_t i = 0; i < 2; i++)
-    {
-        if (
-            (ledNum - i*LED_OFFSET == 9) ||
-            (ledNum - i*LED_OFFSET == 10) ||
-            (ledNum - i*LED_OFFSET == 17) ||
-            (ledNum - i*LED_OFFSET == 18) ||
-            (ledNum - i*LED_OFFSET == 23) ||
-            (ledNum - i*LED_OFFSET == 24)
-        )
-        {
-            return true;
-        }
-    }
-    return false;
 }
 
 static bool gameLayer(effect_params_t * params){
@@ -187,16 +254,16 @@ static bool gameLayer(effect_params_t * params){
     RGB normKey = hsv_to_rgb(hsv);
     RGB specialKey;
 
-    hsv.v = hsv.v + rgb_matrix_config.speed;
+    hsv.h += rgb_matrix_config.speed;
     specialKey = hsv_to_rgb(hsv);
-
-
 
     for (uint8_t i = led_min; i < led_max; i++)
     {
-        if (isWasdLED(i))
-            rgb_matrix_set_color(i, specialKey.r, specialKey.g, specialKey.b);
-        else
+        if (!(
+            setWasdLED(i, specialKey.r, specialKey.g, specialKey.b) ||
+            setPinkyLED(i, specialKey.r, specialKey.g, specialKey.b) ||
+            setThumbLED(i, specialKey.r, specialKey.g, specialKey.b)
+            ))
             rgb_matrix_set_color(i, normKey.r, normKey.g, normKey.b);
     }
     return rgb_matrix_check_finished_leds(led_max);
@@ -209,15 +276,16 @@ static bool obsLayer(effect_params_t * params){
     RGB normKey = hsv_to_rgb(hsv);
     RGB specialKey;
 
-    hsv.v = hsv.v + rgb_matrix_config.speed;
+    hsv.h += rgb_matrix_config.speed;
     specialKey = hsv_to_rgb(hsv);
 
 
     for (uint8_t i = led_min; i < led_max; i++)
     {
-        if (isObsKey(i) || isFuncKey(i) || isWasdLED(i))
-            rgb_matrix_set_color(i, specialKey.r, specialKey.g, specialKey.b);
-        else
+        if (!(setObsLED(i, specialKey.r, specialKey.g, specialKey.b) ||
+            setFuncLED(i, specialKey.r, specialKey.g, specialKey.b) ||
+            setWasdLED(i, specialKey.r, specialKey.g, specialKey.b)
+        ))
             rgb_matrix_set_color(i, normKey.r, normKey.g, normKey.b);
     }
     return rgb_matrix_check_finished_leds(led_max);
@@ -230,14 +298,12 @@ static bool funcLayer(effect_params_t * params){
     RGB normKey = hsv_to_rgb(hsv);
     RGB specialKey;
 
-    hsv.v = hsv.v + rgb_matrix_config.speed;
+    hsv.h += rgb_matrix_config.speed;
     specialKey = hsv_to_rgb(hsv);
 
     for (uint8_t i = led_min; i < led_max; i++)
     {
-        if (isFuncKey(i))
-            rgb_matrix_set_color(i, specialKey.r, specialKey.g, specialKey.b);
-        else
+        if (!(setFuncLED(i, specialKey.r, specialKey.g, specialKey.b)))
             rgb_matrix_set_color(i, normKey.r, normKey.g, normKey.b);
     }
     return rgb_matrix_check_finished_leds(led_max);
