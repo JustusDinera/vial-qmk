@@ -127,6 +127,10 @@ layer_state_t layer_state_set_user(layer_state_t state) {
     }
 
     switch (state) {
+    case L_BASE:
+    case 1:
+        rgb_matrix_mode(standardMode);
+        break;
     // function layer
     case L_FUNCTION:
     case L_FUNCTION|L_NUMBER:
@@ -153,6 +157,10 @@ layer_state_t layer_state_set_user(layer_state_t state) {
 layer_state_t default_layer_state_set_user(layer_state_t state) {
     oled_clear();
     switch (state) {
+    case L_BASE:
+    case 1:
+        rgb_matrix_mode(standardMode);
+        break;
     case L_MIDI:
         //state = rgb_matrix_get_mode();
         rgb_matrix_mode_noeeprom(RGB_MATRIX_CUSTOM_piano);
@@ -189,7 +197,7 @@ layer_state_t default_layer_state_set_user(layer_state_t state) {
         uprintf("current matrix mode: %u\n", rgb_matrix_get_mode());
 #endif
         //if (state != rgb_matrix_get_mode())
-            rgb_matrix_mode(standardMode);
+        //rgb_matrix_mode(standardMode);
         break;
     }
   return state;
