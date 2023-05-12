@@ -148,7 +148,7 @@ layer_state_t layer_state_set_user(layer_state_t state) {
         uprintf("last matrix mode:    %lu\n", state);
         uprintf("current matrix mode: %u\n", rgb_matrix_get_mode());
 #endif
-        rgb_matrix_mode(standardMode);
+        //rgb_matrix_mode(standardMode);
         break;
     }
   return state;
