@@ -130,7 +130,11 @@ static bool isWasdLED(uint8_t ledNum){
         (ledNum == 11) ||
         (ledNum == 16) ||
         (ledNum == 17) ||
-        (ledNum == 19)
+        (ledNum == 19) ||
+        (
+            (ledNum <= 23) &&
+            (ledNum >= 21)
+        )
     )
     {
         return true;
@@ -261,7 +265,7 @@ static bool gameLayer(effect_params_t * params){
     {
         if (!(
             setWasdLED(i, specialKey.r, specialKey.g, specialKey.b) ||
-            setPinkyLED(i, specialKey.r, specialKey.g, specialKey.b) ||
+            //setPinkyLED(i, specialKey.r, specialKey.g, specialKey.b) ||
             setThumbLED(i, specialKey.r, specialKey.g, specialKey.b)
             ))
             rgb_matrix_set_color(i, normKey.r, normKey.g, normKey.b);
@@ -303,7 +307,10 @@ static bool funcLayer(effect_params_t * params){
 
     for (uint8_t i = led_min; i < led_max; i++)
     {
-        if (!(setFuncLED(i, specialKey.r, specialKey.g, specialKey.b)))
+        if (!(
+            setFuncLED(i, specialKey.r, specialKey.g, specialKey.b) ||
+            setPinkyLED(i, specialKey.r, specialKey.g, specialKey.b)
+        ))
             rgb_matrix_set_color(i, normKey.r, normKey.g, normKey.b);
     }
     return rgb_matrix_check_finished_leds(led_max);
