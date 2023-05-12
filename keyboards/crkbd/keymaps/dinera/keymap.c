@@ -121,35 +121,33 @@ static void oled_write_uint8(uint8_t number, bool invert){
 
 layer_state_t layer_state_set_user(layer_state_t state) {
     oled_clear();
-    if (state == 1 || state == L_BASE)
+    if (default_layer_state == L_BASE || default_layer_state == 1)
     {
-        standardMode = rgb_matrix_get_mode();
-    }
-
-    switch (state) {
-    case L_BASE:
-    case 1:
-        rgb_matrix_mode(standardMode);
-        break;
-    // function layer
-    case L_FUNCTION:
-    case L_FUNCTION|L_NUMBER:
-    case L_FUNCTION|L_SYMBOL:
-    case L_FUNCTION|L_NUMBER|L_SYMBOL:
-        rgb_matrix_mode_noeeprom(RGB_MATRIX_CUSTOM_funcLayer);
-#ifdef CONSOLE_ENABLE
-        print("layer state: state function\n");
-        uprintf("last matrix mode: %lu\n", state);
-#endif
-        break;
-    default: //  for any other layers, or the default layer
-#ifdef CONSOLE_ENABLE
-        print("layer state: state default\n");
-        uprintf("last matrix mode:    %lu\n", state);
-        uprintf("current matrix mode: %u\n", rgb_matrix_get_mode());
-#endif
-        //rgb_matrix_mode(standardMode);
-        break;
+        switch (state) {
+        case L_BASE:
+        case 1:
+            rgb_matrix_mode(standardMode);
+            break;
+        // function layer
+        case L_FUNCTION:
+        case L_FUNCTION|L_NUMBER:
+        case L_FUNCTION|L_SYMBOL:
+        case L_FUNCTION|L_NUMBER|L_SYMBOL:
+            rgb_matrix_mode_noeeprom(RGB_MATRIX_CUSTOM_funcLayer);
+    #ifdef CONSOLE_ENABLE
+            print("layer state: state function\n");
+            uprintf("last matrix mode: %lu\n", state);
+    #endif
+            break;
+        default: //  for any other layers, or the default layer
+    #ifdef CONSOLE_ENABLE
+            print("layer state: state default\n");
+            uprintf("last matrix mode:    %lu\n", state);
+            uprintf("current matrix mode: %u\n", rgb_matrix_get_mode());
+    #endif
+            //rgb_matrix_mode(standardMode);
+            break;
+        }
     }
   return state;
 }
