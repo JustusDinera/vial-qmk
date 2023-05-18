@@ -14,13 +14,14 @@ VIALRGB_ENABLE      = yes
 VIA_ENABLE          = yes     # Enable VIA
 VIAL_ENABLE         = yes     # Enable VIAL
 
-### Debug
-# remove all in production keyboards
-VIAL_INSECURE 		= yes     # Enables insecure mode
-CONSOLE_ENABLE 		= yes	  # Enables debug output to host console
+### WPN Calculator
+WPM_ENABLE 			= yes
 
 ### MIDI
-MIDI_ENABLE = yes
+MIDI_ENABLE 		= yes
+
+### MIDI Sequencer
+#SEQUENCER_ENABLE 	= yes
 
 ### USB HID
 RAW_ENABLE          = yes 	  # Enable RAW HID
@@ -44,3 +45,8 @@ COMBO_ENABLE        = no
 ### KB2040
 #PIN_COMPATIBLE 		= promicro
 #CONVERT_TO			= kb2040 # Convert Code to Adafruit KB2040
+
+### Debug
+# remove all in production keyboards
+VIAL_INSECURE 		= yes     # Enables insecure mode
+CONSOLE_ENABLE 		= yes	  # Enables debug output to host console
