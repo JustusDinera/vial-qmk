@@ -18,6 +18,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include QMK_KEYBOARD_H
 
+#define INC_VAL 10
+
 // Layer defines
 #define L_BASE 0
 #define L_NUMBER 2
@@ -25,11 +27,23 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define L_FUNCTION 8
 #define L_MIDI (1 << 18)
 #define L_OBS (1 << 7)
-#define L_SHOOTER (1 << 12)
+#define L_GAME (1 << 12)
 //#define L_MIDI (1 << 18)
+
+typedef union {
+  uint32_t raw;
+  struct {
+    uint8_t h;
+    uint8_t s;
+    uint8_t v;
+    uint8_t reserved;
+  }hsv;
+} user_config_t;
 
 uint8_t mainKeys[] = {0xff,0x0,0};
 uint8_t standardMode;
+user_config_t underglow;
+
 
 // add user keycodesb
 enum user_keycode {
@@ -37,6 +51,12 @@ enum user_keycode {
     OBS_pa,
     MUTE,
     cam,
+    USATI,
+    USATD,
+    UHUEI,
+    UHUED,
+    UVALI,
+    UVALD
 };
 
 #if defined(ENCODER_MAP_ENABLE)
@@ -181,7 +201,7 @@ layer_state_t default_layer_state_set_user(layer_state_t state) {
         uprintf("last matrix mode: %lu\n", state);
 #endif
         break;
-    case L_SHOOTER:
+    case L_GAME:
         rgb_matrix_mode_noeeprom(RGB_MATRIX_CUSTOM_gameLayer);
 #ifdef CONSOLE_ENABLE
         print("default layer state: state game\n");
@@ -249,11 +269,10 @@ static void render_oled(void) {
 */
 
 oled_rotation_t oled_init_user(oled_rotation_t rotation) {
-  /*
+
   if (!is_keyboard_master()) {
-    return OLED_ROTATION_180;  // flips the display 180 degrees if offhand
+    return OLED_ROTATION_270;  // flips the display 180 degrees if offhand
   }
-  */
   return rotation;
 }
 
@@ -303,6 +322,12 @@ void oled_render_layer_state(void) {
             oled_write_uint8(midi_config.transpose, true);
 
             break;
+        case L_GAME:
+            oled_write_P(PSTR("GAME  \n"), false);
+            oled_write_P(PSTR("Wallworld"), false);
+            oled_write_P(PSTR("GAME  "), false);
+            oled_write_P(PSTR("GAME  "), false);
+
         default:
             // debug output on oled if layer does not match a layer state
 
@@ -370,6 +395,13 @@ void oled_render_logo(void) {
     oled_write_P(crkbd_logo, false);
 }
 
+
+void write_wpm(void){
+        oled_write_P(PSTR("WPM:\n"), false);
+        oled_write_uint8(get_current_wpm(), false);
+        oled_write("\n", false);
+}
+
 // Basic task to render the OLEDs
 bool oled_task_user(void) {
     if (is_keyboard_master()) {
@@ -379,7 +411,7 @@ bool oled_task_user(void) {
         }
     } else {
         //render_oled();
-        render_bootmagic_status(true);
+        write_wpm();
     }
     return false;
 }
@@ -401,6 +433,41 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     standardMode = rgb_matrix_get_mode();
     rgb_matrix_step();
     break;
+  case USATI:
+    if (underglow.hsv.s + INC_VAL > 255)
+        underglow.hsv.s = 255;
+    else
+        underglow.hsv.s += INC_VAL;
+    eeconfig_update_user(underglow.raw);
+    break;
+  case USATD:
+    if (underglow.hsv.s -= INC_VAL < 0)
+        underglow.hsv.s = 0;
+    else
+        underglow.hsv.s -= INC_VAL;
+    eeconfig_update_user(underglow.raw);
+    break;
+  case UHUEI:
+    underglow.hsv.h += INC_VAL;
+    eeconfig_update_user(underglow.raw);
+    break;
+  case UHUED:
+    underglow.hsv.h -= INC_VAL;
+    break;
+  case UVALI:
+    if (underglow.hsv.v + INC_VAL > 255)
+        underglow.hsv.v = 255;
+    else
+        underglow.hsv.v += INC_VAL;
+    eeconfig_update_user(underglow.raw);
+      break;
+  case UVALD:
+    if (underglow.hsv.v - INC_VAL < 0)
+        underglow.hsv.v = 0;
+    else
+        underglow.hsv.v -= INC_VAL;
+    eeconfig_update_user(underglow.raw);
+    break;
 
   default:
     break;
@@ -408,6 +475,10 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
   return true;
 }
 #endif // OLED_ENABLE
+
+void keyboard_pre_init_user(void) {
+    underglow.raw = eeconfig_read_user();
+}
 
 void keyboard_post_init_user(void) {
 #ifdef CONSOLE_ENABLE

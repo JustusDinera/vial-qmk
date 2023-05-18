@@ -18,10 +18,34 @@
     {"name": "OBS cam",
 	 "title": "toggle cam in OBS",
 	 "shortName": "cam"
+	},
+    {"name": "Under Sat +",
+	 "title": "increace unerglow saturation",
+	 "shortName": "USATI"
+	},
+    {"name": "Under Sat -",
+	 "title": "decreace unerglow saturation",
+	 "shortName": "USATD"
+	},
+    {"name": "Under Hue +",
+	 "title": "incerace unerglow hue",
+	 "shortName": "UHUEI"
+	},
+    {"name": "Under Hue -",
+	 "title": "decerace unerglow hue",
+	 "shortName": "UHUED"
+	},
+    {"name": "Under Value +",
+	 "title": "incerace unerglow value",
+	 "shortName": "UVALI"
+	},
+    {"name": "Under Value -",
+	 "title": "decerace unerglow value",
+	 "shortName": "UVALD"
 	}
 ],
 
-  "lighting": "vialrgb",
+  "lDghting": "vialrgb",
   "matrix": { "rows": 8, "cols": 6 },
   "layouts": {
       "keymap": [
