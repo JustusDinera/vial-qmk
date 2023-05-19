@@ -408,10 +408,10 @@ bool oled_task_user(void) {
         oled_render_layer_state();
         if (default_layer_state != L_MIDI){
             oled_render_keylog();
+            write_wpm();
         }
     } else {
         //render_oled();
-        write_wpm();
         oled_render_keylog();
     }
 #ifdef CONSOLE_ENABLE

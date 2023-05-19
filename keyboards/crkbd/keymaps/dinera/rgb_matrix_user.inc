@@ -231,8 +231,9 @@ static bool piano(effect_params_t* params){
     hsv = rgb_matrix_get_hsv();
     rgb = hsv_to_rgb(hsv);
 
-    for (uint8_t i = led_min; i < led_max; i++)
-    {
+    //for (uint8_t i = led_min; i < led_max; i++)
+    for (uint8_t i = 0; i < 54; i++)
+     {
         switch (pianoKeys[i])
         {
         case W_KEY:
