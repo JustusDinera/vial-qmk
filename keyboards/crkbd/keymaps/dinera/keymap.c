@@ -412,7 +412,11 @@ bool oled_task_user(void) {
     } else {
         //render_oled();
         write_wpm();
+        oled_render_keylog();
     }
+#ifdef CONSOLE_ENABLE
+    uprintf("wpm: %u\n", get_current_wpm());
+#endif // CONSOLE_ENABLE
     return false;
 }
 
