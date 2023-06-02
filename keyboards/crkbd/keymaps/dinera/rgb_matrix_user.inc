@@ -20,26 +20,6 @@ static uint8_t underglow[] = {0, 0xff, 0};
 static uint8_t mainKeys[] = {0xff, 0, 0xff};
 static uint8_t ctrlKeys[] = {0xff, 0xff, 0};
 
-static uint8_t pianoKeys[] = {
-    O_KEY, O_KEY, O_KEY, O_KEY, O_KEY, O_KEY, // underglow
-    O_KEY,
-    W_KEY, W_KEY, W_KEY, // F
-    W_KEY, W_KEY, W_KEY, // E
-    O_KEY, O_KEY,
-    W_KEY, B_KEY, B_KEY, // D#
-    W_KEY, W_KEY, W_KEY, // D
-    W_KEY, B_KEY, B_KEY, // C#
-    W_KEY, W_KEY, W_KEY, // C
-    O_KEY, O_KEY, O_KEY, O_KEY, O_KEY, O_KEY, // underglow
-    O_KEY,
-    W_KEY, B_KEY, B_KEY, // F#
-    W_KEY, W_KEY, W_KEY, // G
-    O_KEY, O_KEY,
-    W_KEY, B_KEY, B_KEY, // G#
-    W_KEY, W_KEY, W_KEY, // A
-    W_KEY, B_KEY, B_KEY, // A#
-    W_KEY, W_KEY, W_KEY  // H
-};
 
 static bool isThumbLED(uint8_t ledNum){
     for (uint8_t i = 0; i < 2; i++)
@@ -221,6 +201,27 @@ static bool twoColors(effect_params_t* params){
     return rgb_matrix_check_finished_leds(led_max);
 }
 
+static bool isWhiteKey(uint8_t col, uint8_t row){
+    if (row < MATRIX_ROWS/2 - 1) // left side
+    {
+        if (
+            col % 2 == 0 ||
+            col == 5
+        )
+        {
+            return true;
+        }
+    }
+    else if (row >= MATRIX_ROWS/2 && row < MATRIX_ROWS - 1) // right side
+    {
+        if (col % 2 == 0)
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
 // shows a piano keyboard
 static bool piano(effect_params_t* params){
     RGB_MATRIX_USE_LIMITS(led_min, led_max);
@@ -236,16 +237,10 @@ static bool piano(effect_params_t* params){
      {
         switch (pianoKeys[i])
         {
-        case W_KEY:
-            rgb_matrix_set_color(i, 100, 100, 100);
-            break;
-        case B_KEY:
-            rgb_matrix_set_color(i, rgb.r, rgb.g, rgb.b);
-            break;
-        default:
-            setUnderLED(i, rgb.r, rgb.g, rgb.b);
-            setThumbLED(i, rgb.r, rgb.g, rgb.b);
-            break;
+            if (isWhiteKey(col, row))
+                rgb_matrix_set_color(g_led_config.matrix_co[row][col], 100, 100, 100);
+            else
+                rgb_matrix_set_color(g_led_config.matrix_co[row][col], rgb.r, rgb.g, rgb.b);
         }
     }
     return false;
