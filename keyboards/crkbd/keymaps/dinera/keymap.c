@@ -397,7 +397,7 @@ void oled_render_logo(void) {
 
 
 void write_wpm(void){
-        oled_write_P(PSTR("WPM:\n"), false);
+        oled_write_P(PSTR("\nWPM: "), false);
         oled_write_uint8(get_current_wpm(), false);
         oled_write("\n", false);
 }
