@@ -21,6 +21,30 @@ static uint8_t mainKeys[] = {0xff, 0, 0xff};
 static uint8_t ctrlKeys[] = {0xff, 0xff, 0};
 
 
+/*
+static uint8_t pianoKeys[] = {
+    O_KEY, O_KEY, O_KEY, O_KEY, O_KEY, O_KEY, // underglow
+    O_KEY,
+    W_KEY, W_KEY, W_KEY, // F
+    W_KEY, W_KEY, W_KEY, // E
+    O_KEY, O_KEY,
+    W_KEY, B_KEY, B_KEY, // D#
+    W_KEY, W_KEY, W_KEY, // D
+    W_KEY, B_KEY, B_KEY, // C#
+    W_KEY, W_KEY, W_KEY, // C
+    O_KEY, O_KEY, O_KEY, O_KEY, O_KEY, O_KEY, // underglow
+    O_KEY,
+    W_KEY, B_KEY, B_KEY, // F#
+    W_KEY, W_KEY, W_KEY, // G
+    O_KEY, O_KEY,
+    W_KEY, B_KEY, B_KEY, // G#
+    W_KEY, W_KEY, W_KEY, // A
+    W_KEY, B_KEY, B_KEY, // A#
+    W_KEY, W_KEY, W_KEY  // H
+};
+*/
+
+
 static bool isThumbLED(uint8_t ledNum){
     for (uint8_t i = 0; i < 2; i++)
     {
@@ -233,9 +257,10 @@ static bool piano(effect_params_t* params){
     rgb = hsv_to_rgb(hsv);
 
     //for (uint8_t i = led_min; i < led_max; i++)
-    for (uint8_t i = 0; i < 54; i++)
+    for (uint8_t row = 0; row < 12; row++)
      {
-        switch (pianoKeys[i])
+        //switch (pianoKeys[i]
+        for(int col = 0; col < 4; col++)
         {
             if (isWhiteKey(col, row))
                 rgb_matrix_set_color(g_led_config.matrix_co[row][col], 100, 100, 100);
