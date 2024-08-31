@@ -114,3 +114,4 @@ user_song_list.h
 compile_commands.json
 .clangd/
 .cache/
+lib/chibios
