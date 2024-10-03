@@ -1,14 +1,22 @@
 #pragma once
 
-#define EE_HANDS // Store which side I am in EEPROM
+#define MASTER_LEFT // Store which side I am in EEPROM
+
+#define NUM_ENCODERS 2
 
 /* Keyboard matrix assignments */
-#define MATRIX_COL_PINS { GP15, GP14, GP13, GP12, GP11, GP10, GP9, GP8 }
-#define MATRIX_ROW_PINS { GP16, GP17, GP18, GP19, GP20, GP21}
+#define MATRIX_COL_PINS {GP18, GP19, GP20, GP21, GP22, GP23}
+#define MATRIX_ROW_PINS {GP5, GP6, GP7, GP8, GP9, GP10}
 
 /* Encoders */
-#define ENCODERS_PAD_A { GP2, GP3 }
-#define ENCODERS_PAD_B { GP4, GP5 }
+#define ENCODERS_PAD_A {GP11}
+#define ENCODERS_PAD_B {GP12}
+
+#define SPLIT_USB_DETECT
+#define SPLIT_USB_TIMEOUT 2000
+#define SPLIT_USB_TIMEOUT_POLL 10
+#define SPLIT_WATCHDOG_ENABLE
+#define SPLIT_WATCHDOG_TIMEOUT 3000
 
 /* Trackball */
 /*
